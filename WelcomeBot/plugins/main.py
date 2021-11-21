@@ -31,6 +31,9 @@ async def test(client, message):
 
 @Client.on_message(filters.command(["list", f"list@{bot_username}"]))
 async def list(client, message):
+    if message.chat.type == 'private':
+        await message.reply_text("**Please use this command in a group!**")
+        return
     await message.reply_text(
         "**Список GIF**",
         reply_markup=InlineKeyboardMarkup(
@@ -43,19 +46,24 @@ async def list(client, message):
 
 @Client.on_message(filters.command("start"))
 async def start(client, message):
-    if len(message.command) == 2:
-        chat_gifs = await db.get_chat_gifs(str(message.command[1]))
-        if len(chat_gifs) == 0:
-            await message.reply_text("**Список пуст!**")
-            return
-        await message.reply_text("**Список GIF:**")
-        for i in chat_gifs:
-            await client.send_cached_media(chat_id=message.chat.id,
-                                           file_id=i)
+    if len(message.command) != 2:
+        await message.reply_text(f"**Welcome, {message.from_user.mention}**")
+        return
+    chat_gifs = await db.get_chat_gifs(str(message.command[1]))
+    if len(chat_gifs) == 0:
+        await message.reply_text("**Список пуст!**")
+        return
+    await message.reply_text("**Список GIF:**")
+    for i in chat_gifs:
+        await client.send_cached_media(chat_id=message.chat.id,
+                                       file_id=i)
 
 
 @Client.on_message(filters.command(["add", f"add@{bot_username}"]))
 async def add_gif(client, message):
+    if message.chat.type == 'private':
+        await message.reply_text("**Please use this command in a group!**")
+        return
     try:
         file_id = message.reply_to_message.animation.file_id
         unique_id = message.reply_to_message.animation.file_unique_id
@@ -75,6 +83,9 @@ async def add_gif(client, message):
 
 @Client.on_message(filters.command(["remove", f"remove@{bot_username}"]))
 async def remove_gif(client, message):
+    if message.chat.type == 'private':
+        await message.reply_text("**Please use this command in a group!**")
+        return
     try:
         file_id = message.reply_to_message.animation.file_unique_id
     except AttributeError:
@@ -93,8 +104,12 @@ async def remove_gif(client, message):
 
 @Client.on_message(filters.command(["set_text", f"set_text@{bot_username}"]))
 async def set_text(client, message):
+    if message.chat.type == 'private':
+        await message.reply_text("**Please use this command in a group!**")
+        return
     if len(message.command) < 2:
-        await message.reply_text("**Please use the following format:**\n`/set_text **Welcome**`")
+        await message.reply_text("**Please use the following format:** \n"
+                                 "`/set_text Welcome`")
         return
     perm = await client.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)
     if not perm.can_manage_chat and not perm.can_change_info:
