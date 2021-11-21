@@ -1,0 +1,5 @@
+pyrogram
+aiofiles
+tgcrypto
+git+https://github.com/asteroidden/pyrothrottle
+pyrogram "srv"
