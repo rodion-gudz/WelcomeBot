@@ -12,7 +12,7 @@ from WelcomeBot.utils import db
                                   bot.get_me().id
                                   in [u.id for u in m.new_chat_members]))
 async def add_chat(client, message):
-    db.add_chat(str(message.chat.id))
+    await db.add_chat(str(message.chat.id))
 
 
 @Client.on_message(filters.command("test_welcome") | filters.new_chat_members)
@@ -75,7 +75,7 @@ async def add_gif(client, message):
         await message.reply("**You don't have permission to use this command!**")
         return
     chat = message.chat.id
-    if db.add_chat_gif(str(chat), file_id, unique_id):
+    if await db.add_chat_gif(str(chat), file_id, unique_id):
         await message.reply_text("**Gif already in the list!**")
     else:
         await message.reply_text("**Gif added to the list!**")
@@ -96,7 +96,7 @@ async def remove_gif(client, message):
         await message.reply("**You don't have permission to use this command!**")
         return
     chat = message.chat.id
-    if db.remove_chat_gif(str(chat), file_id):
+    if await db.remove_chat_gif(str(chat), file_id):
         await message.reply_text("**Gif not in the list!**")
     else:
         await message.reply_text("**Gif removed from the list!**")
@@ -116,7 +116,7 @@ async def set_text(client, message):
         await message.reply("**You don't have permission to use this command!**")
         return
     chat = message.chat.id
-    db.set_text(str(chat), message.text.html[10:])
+    await db.set_text(str(chat), message.text.html[10:])
     await message.reply_text("**Text successfully changed**")
 
 
@@ -124,4 +124,4 @@ async def set_text(client, message):
                    filters.create(lambda _, bot, m:
                                   bot.get_me().id == m.left_chat_member.id))
 async def remove_chat(client, message):
-    db.del_chat(str(message.chat.id))
+    await db.del_chat(str(message.chat.id))

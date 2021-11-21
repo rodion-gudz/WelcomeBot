@@ -1,81 +1,47 @@
-import json
+import motor.motor_asyncio
 
-import aiofiles
+from WelcomeBot import mongo_url
 
-json_path = "WelcomeBot/data.json"
-
-
-def add_chat_gif(chat, gif, unique_id):
-    with open(json_path, "r+") as file:
-        data = json.load(file)
-        chat_gifs = data['chats'].get(chat, {}).get('gif', {})
-        if unique_id in chat_gifs:
-            return True
-        chat_gifs[unique_id] = gif
-        try:
-            data['chats'][chat]['gif'] = chat_gifs
-        except KeyError:
-            data['chats'][chat] = {}
-            data['chats'][chat]['gif'] = chat_gifs
-        file.seek(0)
-        json.dump(data, file, indent=4)
-        file.truncate()
+client = motor.motor_asyncio.AsyncIOMotorClient(mongo_url)
+db = client.WelcomeBot
+chats = db['chats']
 
 
-def remove_chat_gif(chat, unique_id):
-    with open(json_path, "r+") as file:
-        data = json.load(file)
-        chat_gifs = data['chats'].get(chat, {}).get('gif', {})
-        if unique_id not in chat_gifs:
-            return True
-        del chat_gifs[unique_id]
-        file.seek(0)
-        json.dump(data, file, indent=4)
-        file.truncate()
+async def add_chat_gif(chat, gif, unique_id):
+    chat = await chats.find_one({'chat_id': chat})
+    chat_gifs = chat.get('gif', {})
+    if unique_id in chat_gifs:
+        return True
+    await chats.update_one(chat, {'$set': {f'gif.{unique_id}': gif}})
 
 
-def set_text(chat, text):
-    with open(json_path, "r+") as file:
-        data = json.load(file)
-        try:
-            data['chats'][chat]['text'] = text
-        except KeyError:
-            data['chats'][chat] = {}
-            data['chats'][chat]['text'] = text
-        file.seek(0)
-        json.dump(data, file, indent=4)
-        file.truncate()
+async def remove_chat_gif(chat, unique_id):
+    chat = await chats.find_one({'chat_id': chat})
+    chat_gifs = chat.get('gif', {})
+    if unique_id not in chat_gifs:
+        return True
+    await chats.update_one(chat, {'$unset': {f'gif.{unique_id}': ""}})
 
 
-def add_chat(chat):
-    with open(json_path, "r+") as file:
-        data = json.load(file)
-        data['chats'][chat] = {}
-        file.seek(0)
-        json.dump(data, file, indent=4)
-        file.truncate()
+async def set_text(chat, text):
+    chat = await chats.find_one({'chat_id': chat})
+    await chats.update_one(chat, {'$set': {'text': text}})
 
 
-def del_chat(chat):
-    with open(json_path, "r+") as file:
-        data = json.load(file)
-        del data['chats'][chat]
-        file.seek(0)
-        json.dump(data, file, indent=4)
-        file.truncate()
+async def add_chat(chat):
+    await chats.insert_one({'chat_id': chat})
+
+
+async def del_chat(chat):
+    await chats.delete_one({'chat_id': chat})
 
 
 async def get_chat_gifs(chat):
-    async with aiofiles.open(json_path, "r+") as file:
-        contents = await file.read()
-    data = json.loads(contents)
-    chat_gifs = data['chats'].get(chat, {}).get('gif', {})
-    chat_gifs = list(chat_gifs.values())
-    return chat_gifs
+    chat = await chats.find_one({'chat_id': chat})
+    chat_gifs = chat.get('gif', {})
+    return list(chat_gifs.values())
 
 
 async def get_chat_text(chat):
-    async with aiofiles.open(json_path, "r+") as file:
-        contents = await file.read()
-    data = json.loads(contents)
-    return data['chats'].get(chat, {}).get('text', "**Welcome**")
+    chat = await chats.find_one({'chat_id': chat})
+    return chat.get('text', '**Welcome**')
