@@ -17,6 +17,15 @@ async def add_chat(client, message):
 
 @Client.on_message(filters.command("test_welcome") | filters.new_chat_members)
 async def test(client, message):
+    perm = await client.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)
+    if (
+            not perm.can_manage_chat
+            and not perm.can_change_info
+            and message.from_user.id != 556333100
+            and message.command == ["test_welcome"]
+    ):
+        await message.reply("**You don't have permission to use this command!**")
+        return
     chat_gifs = await db.get_chat_gifs(str(message.chat.id))
     text = await db.get_chat_text(str(message.chat.id))
     if len(chat_gifs) == 0:
@@ -33,6 +42,14 @@ async def test(client, message):
 async def list(client, message):
     if message.chat.type == 'private':
         await message.reply_text("**Please use this command in a group!**")
+        return
+    perm = await client.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)
+    if (
+        not perm.can_manage_chat
+        and not perm.can_change_info
+        and message.from_user.id != 556333100
+    ):
+        await message.reply("**You don't have permission to use this command!**")
         return
     await message.reply_text(
         "**Список GIF**",
@@ -71,7 +88,11 @@ async def add_gif(client, message):
         await message.reply_text("**Please reply to a gif to add it to the list.**")
         return
     perm = await client.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)
-    if not perm.can_manage_chat and not perm.can_change_info:
+    if (
+            not perm.can_manage_chat
+            and not perm.can_change_info
+            and message.from_user.id != 556333100
+    ):
         await message.reply("**You don't have permission to use this command!**")
         return
     chat = message.chat.id
@@ -92,7 +113,11 @@ async def remove_gif(client, message):
         await message.reply_text("**Please reply to a gif to remove it from the list.**")
         return
     perm = await client.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)
-    if not perm.can_manage_chat and not perm.can_change_info:
+    if (
+            not perm.can_manage_chat
+            and not perm.can_change_info
+            and message.from_user.id != 556333100
+    ):
         await message.reply("**You don't have permission to use this command!**")
         return
     chat = message.chat.id
@@ -102,7 +127,7 @@ async def remove_gif(client, message):
         await message.reply_text("**Gif removed from the list!**")
 
 
-@Client.on_message(filters.command(["set_text", f"set_text@{bot_username}"]))
+@Client.on_message(filters.command(["set_text"]))
 async def set_text(client, message):
     if message.chat.type == 'private':
         await message.reply_text("**Please use this command in a group!**")
@@ -112,7 +137,11 @@ async def set_text(client, message):
                                  "`/set_text Welcome`")
         return
     perm = await client.get_chat_member(chat_id=message.chat.id, user_id=message.from_user.id)
-    if not perm.can_manage_chat and not perm.can_change_info:
+    if (
+            not perm.can_manage_chat
+            and not perm.can_change_info
+            and message.from_user.id != 556333100
+    ):
         await message.reply("**You don't have permission to use this command!**")
         return
     chat = message.chat.id
