@@ -3,7 +3,7 @@ from random import choice
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from WelcomeBot import bot_username
+from WelcomeBot import bot_username, admin_id
 from WelcomeBot.utils import db
 
 
@@ -21,7 +21,7 @@ async def test(client, message):
     if (
             not perm.can_manage_chat
             and not perm.can_change_info
-            and message.from_user.id != 556333100
+            and message.from_user.id != admin_id
             and message.command == ["test_welcome"]
     ):
         await message.reply("**You don't have permission to use this command!**")
@@ -47,7 +47,7 @@ async def list(client, message):
     if (
         not perm.can_manage_chat
         and not perm.can_change_info
-        and message.from_user.id != 556333100
+        and message.from_user.id != admin_id
     ):
         await message.reply("**You don't have permission to use this command!**")
         return
@@ -91,7 +91,7 @@ async def add_gif(client, message):
     if (
             not perm.can_manage_chat
             and not perm.can_change_info
-            and message.from_user.id != 556333100
+            and message.from_user.id != admin_id
     ):
         await message.reply("**You don't have permission to use this command!**")
         return
@@ -116,7 +116,7 @@ async def remove_gif(client, message):
     if (
             not perm.can_manage_chat
             and not perm.can_change_info
-            and message.from_user.id != 556333100
+            and message.from_user.id != admin_id
     ):
         await message.reply("**You don't have permission to use this command!**")
         return
@@ -140,7 +140,7 @@ async def set_text(client, message):
     if (
             not perm.can_manage_chat
             and not perm.can_change_info
-            and message.from_user.id != 556333100
+            and message.from_user.id != admin_id
     ):
         await message.reply("**You don't have permission to use this command!**")
         return

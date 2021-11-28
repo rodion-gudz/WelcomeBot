@@ -11,14 +11,11 @@ config = configparser.ConfigParser()
 config.read(config_path)
 bot_username = config.get('bot', 'bot_username')
 bot_token = config.get('bot', 'bot_token')
+admin_id = int(config.get('bot', 'admin_id'))
 mongo_url = config.get('bot', 'mongo_url')
 api_id = 2040
 api_hash = "b18441a1ff607e10a989891a5462e627"
 plugins = dict(root="WelcomeBot.plugins")
-
-if not os.path.isfile('WelcomeBot/data.json'):
-    with open('WelcomeBot/data.json', 'w') as f:
-        f.write('{"chats": {}}')
 
 
 def main():
